@@ -126,10 +126,8 @@ const ManualTransactionEntry = ({ onTransactionAdd }) => {
             <label className="block text-sm font-medium text-secondary mb-1">
               Amount
             </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-secondary sm:text-sm">$</span>
-              </div>
+            <div className="flex items-center input-premium h-10 overflow-hidden">
+              <span className="flex-shrink-0 text-secondary text-sm ml-3 mr-1">$</span>
               <input
                 type="number"
                 name="amount"
@@ -138,8 +136,8 @@ const ManualTransactionEntry = ({ onTransactionAdd }) => {
                 required
                 step="0.01"
                 min="0.01"
-                placeholder="  0.00"
-                className="w-full pl-7 input-premium"
+                className="w-full border-0 bg-transparent focus:ring-0 focus:outline-none py-2 px-0"
+                placeholder="0.00"
               />
             </div>
           </div>
