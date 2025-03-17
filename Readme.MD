@@ -28,8 +28,8 @@ A self-hosted web application to track and manage your personal finances, featur
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/personal-finance-tracker.git
-cd personal-finance-tracker
+git clone https://github.com/RohiMukka/Personal-Finance.git
+cd Personal-Finance
 ```
 
 2. Install dependencies
