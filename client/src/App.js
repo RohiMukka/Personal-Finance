@@ -7,6 +7,7 @@ import MonthlyBalanceTracker from './components/MonthlyBalanceTracker';
 import CreditCardTracker from './components/CreditCardTracker';
 import ThemeToggle from './components/ThemeToggle';
 import { ThemeContext } from './ThemeContext';
+import DataBackupTools from './components/DataBackupTools';
 
 // Custom hook for localStorage
 function useLocalStorage(key, initialValue) {
@@ -133,12 +134,18 @@ const App = () => {
               </div>
             </div>
             
-            {/* Three Column Layout - Adjusted column widths */}
+            {/* Three Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left Column - Transaction Entry */}
+              {/* Left Column - Transaction Entry + Bank Statement Upload */}
               <div className="lg:col-span-3">
-                <div className="card-premium overflow-hidden">
-                  <ManualTransactionEntry onTransactionAdd={handleAddTransaction} />
+                <div className="space-y-6">
+                  <div className="card-premium overflow-hidden">
+                    <ManualTransactionEntry onTransactionAdd={handleAddTransaction} />
+                  </div>
+                  
+                  <div className="card-premium overflow-hidden">
+                    <BankStatementUpload onUploadSuccess={handleUploadSuccess} />
+                  </div>
                 </div>
               </div>
               
@@ -149,7 +156,7 @@ const App = () => {
                 </div>
               </div>
               
-              {/* Right Column - Transactions List */}
+              {/* Right Column - Transactions List + Data Backup */}
               <div className="lg:col-span-6">
                 <div className="space-y-6">
                   <div className="card-premium overflow-hidden">
@@ -160,9 +167,11 @@ const App = () => {
                     />
                   </div>
                   
-                  {/* PDF Upload moved below transactions */}
                   <div className="card-premium overflow-hidden">
-                    <BankStatementUpload onUploadSuccess={handleUploadSuccess} />
+                    <DataBackupTools 
+                      transactions={transactions}
+                      setTransactions={setTransactions}
+                    />
                   </div>
                 </div>
               </div>

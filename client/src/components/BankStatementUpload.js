@@ -72,11 +72,11 @@ const BankStatementUpload = ({ onUploadSuccess }) => {
 
         setIsUploading(false);
         setFile(null);
-      }, 3000);
+      }, 3000); 
 
       // Real API implementation would look like this:
-      /*
-      const response = await fetch('http://localhost:5001/api/upload/bank-statement', {
+      
+      /*const response = await fetch('http://localhost:5001/api/upload/bank-statement', {
         method: 'POST',
         body: formData
       });
@@ -99,7 +99,7 @@ const BankStatementUpload = ({ onUploadSuccess }) => {
       
       setIsUploading(false);
       setFile(null);
-      */
+    */
     } catch (error) {
       setUploadStatus({
         success: false,
