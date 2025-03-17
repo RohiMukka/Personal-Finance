@@ -1,14 +1,16 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext } from '../ThemeContext';
 
 const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
   const { darkMode } = useContext(ThemeContext);
   
-  // Colors for pie chart - themed based on dark/light mode
-  const COLORS = darkMode ? 
-    ['#818cf8', '#34d399', '#facc15', '#f87171', '#c084fc', '#22d3ee'] :
-    ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  // Colors for pie chart - themed based on dark/light mode, memoized for performance
+  const COLORS = useMemo(() => {
+    return darkMode ? 
+      ['#818cf8', '#34d399', '#facc15', '#f87171', '#c084fc', '#22d3ee'] :
+      ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  }, [darkMode]);
 
   // Format month name properly
   const monthName = showAllMonths
@@ -216,11 +218,17 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
           {monthlyTrend.length > 0 ? (
             <div className="h-80"> {/* Increased height for better visualization */}
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyTrend}>
+                <BarChart 
+                  data={monthlyTrend}
+                  style={{ backgroundColor: darkMode ? 'var(--bg-tertiary)' : 'var(--bg-tertiary)' }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#27272a" : "#e2e8f0"} />
                   <XAxis dataKey="month" stroke={darkMode ? "#a1a1aa" : "#475569"} />
                   <YAxis stroke={darkMode ? "#a1a1aa" : "#475569"} />
-                  <Tooltip content={<CustomBarTooltip />} />
+                  <Tooltip 
+                    content={<CustomBarTooltip />}
+                    cursor={{ fill: darkMode ? 'rgba(30, 30, 36, 0.3)' : 'rgba(241, 245, 249, 0.3)' }}
+                  />
                   <Legend />
                   <Bar dataKey="income" fill={darkMode ? "#34d399" : "#10b981"} name="Income" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="expenses" fill={darkMode ? "#f87171" : "#ef4444"} name="Expenses" radius={[4, 4, 0, 0]} />
@@ -249,6 +257,7 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
                     outerRadius={130} /* Larger pie chart */
                     fill="#8884d8"
                     dataKey="value"
+                    isAnimationActive={false}
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
                     {categoryBreakdown.map((entry, index) => (
@@ -256,6 +265,11 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
                     ))}
                   </Pie>
                   <Tooltip content={<CustomPieTooltip />} />
+                  <Legend 
+                    formatter={(value, entry, index) => {
+                      return <span style={{ color: COLORS[index % COLORS.length] }}>{value}</span>;
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
