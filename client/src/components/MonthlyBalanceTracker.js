@@ -37,12 +37,15 @@ const MonthlyBalanceTracker = ({
   
   // Calculate previous month's ending balance
   useEffect(() => {
-    // Get previous month
-    const current = new Date(selectedMonth + '-01');
-    const previousMonth = new Date(current.getFullYear(), current.getMonth() - 1, 1);
-    const previousMonthStr = previousMonth.toISOString().substring(0, 7);
+    // Get previous month - using safer date handling
+    const [year, month] = selectedMonth.split('-').map(num => parseInt(num, 10));
+    const previousMonth = new Date(year, month - 2, 1); // Get previous month directly
     
-    // Calculate previous month's ending balance
+    // Format to YYYY-MM without timezone issues
+    const previousMonthStr = previousMonth.getFullYear() + '-' + 
+                            String(previousMonth.getMonth() + 1).padStart(2, '0');
+    
+    // Calculate previous month's ending balance - only include transactions up to previous month
     let balance = 0;
     transactions.forEach(t => {
       const transMonth = t.date.substring(0, 7);
