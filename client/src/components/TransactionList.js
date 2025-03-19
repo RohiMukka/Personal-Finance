@@ -234,10 +234,48 @@ const TransactionList = ({ transactions = [], onTransactionUpdate, onTransaction
         </div>
       </div>
       
+            {/* Transaction Summary */}
+            <div className="px-6 py-4 bg-tertiary border-t border-theme">
+        <div className="flex flex-wrap justify-between text-sm gap-4">
+          <div>
+            <span className="font-medium text-secondary">Total Income:</span>
+            <span className="ml-2 text-income font-medium">
+              {formatCurrency(
+                filteredTransactions
+                  .filter(t => t.amount > 0)
+                  .reduce((sum, t) => sum + t.amount, 0)
+              )}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-secondary">Total Expenses:</span>
+            <span className="ml-2 text-expense font-medium">
+              {formatCurrency(
+                filteredTransactions
+                  .filter(t => t.amount < 0)
+                  .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+              )}
+            </span>
+          </div>
+          <div>
+            <span className="font-medium text-secondary">Net:</span>
+            <span className={`ml-2 font-medium ${
+              filteredTransactions.reduce((sum, t) => sum + t.amount, 0) >= 0
+                ? 'text-income'
+                : 'text-expense'
+            }`}>
+              {formatCurrency(
+                filteredTransactions.reduce((sum, t) => sum + t.amount, 0)
+              )}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Transactions Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overflow-y-auto max-h-[200px]">
         <table className="table-premium">
-          <thead>
+          <thead className="sticky top-0 bg-tertiary z-10">
             <tr>
               <th 
                 className="cursor-pointer"

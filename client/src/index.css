@@ -207,3 +207,9 @@ body {
 .table-premium tr:hover td {
   background-color: var(--bg-tertiary);
 }
+
+.chart-tooltip {
+  box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+  pointer-events: none;
+  z-index: 1000;
+}

@@ -37,19 +37,32 @@ const MonthlyBalanceTracker = ({
   
   // Calculate previous month's ending balance
   useEffect(() => {
-    // Get previous month - using safer date handling
+    // Get previous month
     const [year, month] = selectedMonth.split('-').map(num => parseInt(num, 10));
-    const previousMonth = new Date(year, month - 2, 1); // Get previous month directly
     
-    // Format to YYYY-MM without timezone issues
+    // Previous month (e.g., "2023-11")
+    const previousMonth = new Date(year, month - 2, 1);
     const previousMonthStr = previousMonth.getFullYear() + '-' + 
                             String(previousMonth.getMonth() + 1).padStart(2, '0');
     
-    // Calculate previous month's ending balance - only include transactions up to previous month
+    // Check if there's already a carryover transaction for the current month
+    const existingCarryover = transactions.some(t => 
+      t.date.substring(0, 7) === selectedMonth && 
+      t.category === 'Carryover'
+    );
+    
+    if (existingCarryover) {
+      // If there's already a carryover transaction for this month, don't show the button
+      setPreviousBalance(0);
+      return;
+    }
+    
+    // Calculate previous month's ACTUAL ending balance
     let balance = 0;
     transactions.forEach(t => {
       const transMonth = t.date.substring(0, 7);
-      if (transMonth <= previousMonthStr) {
+      // Only include transactions from previous month
+      if (transMonth === previousMonthStr) {
         balance += t.amount;
       }
     });

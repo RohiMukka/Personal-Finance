@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ThemeContext } from '../ThemeContext';
+import D3MonthlyTrendChart from './D3MonthlyTrendChart';
+import D3PieChart from './D3PieChart';
 
 const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
   const { darkMode } = useContext(ThemeContext);
@@ -113,38 +114,6 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
       return monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month);
     });
   };
-
-  // Custom tooltip for bar chart
-  const CustomBarTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className={`p-3 rounded-md shadow-md ${darkMode ? 'bg-secondary border border-theme' : 'bg-white border border-gray-200'}`}>
-          <p className="text-primary font-medium">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={`item-${index}`} style={{ color: entry.color }}>
-              {entry.name}: ${entry.value.toFixed(2)}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom tooltip for pie chart
-  const CustomPieTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className={`p-3 rounded-md shadow-md ${darkMode ? 'bg-secondary border border-theme' : 'bg-white border border-gray-200'}`}>
-          <p className="text-primary font-medium">{payload[0].name}</p>
-          <p style={{ color: payload[0].color }}>
-            ${payload[0].value.toFixed(2)} ({((payload[0].value / summary.totalExpenses) * 100).toFixed(1)}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
   
   const summary = calculateSummary();
   const categoryBreakdown = prepareCategoryBreakdown();
@@ -174,37 +143,48 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
       
       {/* Summary Cards - Made more spacious with better height */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-tertiary p-5 rounded-lg border border-theme h-40">
-          <h2 className="text-lg font-medium text-primary mb-2">Monthly Summary</h2>
-          <div className="mt-3 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-secondary">Income:</span>
-              <span className="font-medium text-income">${summary.totalIncome.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-secondary">Expenses:</span>
-              <span className="font-medium text-expense">${Math.abs(summary.totalExpenses).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between items-center pt-2 border-t border-theme mt-2">
-              <span className="text-primary font-medium">Net:</span>
-              <span className={`font-medium ${summary.netCashflow >= 0 ? 'text-income' : 'text-expense'}`}>
-                ${summary.netCashflow.toFixed(2)}
-              </span>
+        {/* Monthly Summary Card */}
+        <div className="bg-tertiary rounded-lg border border-theme h-40 overflow-hidden">
+          <div className="bg-tertiary border-b border-theme px-5 py-2">
+            <h2 className="text-lg font-medium text-primary">Monthly Summary</h2>
+          </div>
+          <div className="p-4 flex flex-col justify-center h-[calc(100%-40px)]">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Income:</span>
+                <span className="font-medium text-income">${summary.totalIncome.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-secondary">Expenses:</span>
+                <span className="font-medium text-expense">${Math.abs(summary.totalExpenses).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-theme mt-2">
+                <span className="text-primary font-medium">Net:</span>
+                <span className={`font-medium ${summary.netCashflow >= 0 ? 'text-income' : 'text-expense'}`}>
+                  ${summary.netCashflow.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
         
-        <div className="bg-tertiary p-5 rounded-lg border border-theme h-40">
-          <h2 className="text-lg font-medium text-primary mb-2">Savings Rate</h2>
-          <div className="flex items-center justify-center h-24">
+        {/* Savings Rate Card */}
+        <div className="bg-tertiary rounded-lg border border-theme h-40 overflow-hidden">
+          <div className="bg-tertiary border-b border-theme px-5 py-2">
+            <h2 className="text-lg font-medium text-primary">Savings Rate</h2>
+          </div>
+          <div className="flex items-center justify-center h-[calc(100%-40px)]">
             <div className="text-5xl font-bold" style={{ color: 'var(--accent-color)' }}>{summary.savingsRate}%</div>
           </div>
         </div>
         
-        <div className="bg-tertiary p-5 rounded-lg border border-theme h-40">
-          <h2 className="text-lg font-medium text-primary mb-2">Largest Expense</h2>
-          <div className="mt-3">
-            <div className="text-4xl font-bold text-expense mb-2">${summary.largestExpenseAmount.toFixed(2)}</div>
+        {/* Largest Expense Card */}
+        <div className="bg-tertiary rounded-lg border border-theme h-40 overflow-hidden">
+          <div className="bg-tertiary border-b border-theme px-5 py-2">
+            <h2 className="text-lg font-medium text-primary">Largest Expense</h2>
+          </div>
+          <div className="flex flex-col justify-center px-5 h-[calc(100%-40px)]">
+            <div className="text-4xl font-bold text-expense mb-1">${summary.largestExpenseAmount.toFixed(2)}</div>
             <div className="text-secondary text-lg">{summary.largestExpense}</div>
           </div>
         </div>
@@ -213,68 +193,39 @@ const Dashboard = ({ transactions = [], selectedMonth, showAllMonths }) => {
       {/* Charts Section - Enlarged charts with more breathing room */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
         {/* Monthly Income vs Expenses */}
-        <div className="bg-tertiary p-5 rounded-lg border border-theme">
-          <h2 className="text-lg font-medium text-primary mb-5">Monthly Trend</h2>
+        <div className="bg-tertiary rounded-lg border border-theme overflow-hidden">
+          <div className="bg-tertiary border-b border-theme px-5 py-2">
+            <h2 className="text-lg font-medium text-primary">Monthly Trend</h2>
+          </div>
           {monthlyTrend.length > 0 ? (
-            <div className="h-80"> {/* Increased height for better visualization */}
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart 
-                  data={monthlyTrend}
-                  style={{ backgroundColor: darkMode ? 'var(--bg-tertiary)' : 'var(--bg-tertiary)' }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#27272a" : "#e2e8f0"} />
-                  <XAxis dataKey="month" stroke={darkMode ? "#a1a1aa" : "#475569"} />
-                  <YAxis stroke={darkMode ? "#a1a1aa" : "#475569"} />
-                  <Tooltip 
-                    content={<CustomBarTooltip />}
-                    cursor={{ fill: darkMode ? 'rgba(30, 30, 36, 0.3)' : 'rgba(241, 245, 249, 0.3)' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="income" fill={darkMode ? "#34d399" : "#10b981"} name="Income" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="expenses" fill={darkMode ? "#f87171" : "#ef4444"} name="Expenses" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="p-5 h-96">
+              <D3MonthlyTrendChart
+                data={monthlyTrend}
+                darkMode={darkMode}
+              />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-96 p-5">
               <p className="text-tertiary">Not enough data to display monthly trends</p>
             </div>
           )}
         </div>
         
         {/* Expense Breakdown */}
-        <div className="bg-tertiary p-5 rounded-lg border border-theme">
-          <h2 className="text-lg font-medium text-primary mb-5">Expense Breakdown</h2>
+        <div className="bg-tertiary rounded-lg border border-theme overflow-hidden">
+          <div className="bg-tertiary border-b border-theme px-5 py-2">
+            <h2 className="text-lg font-medium text-primary">Expense Breakdown</h2>
+          </div>
           {categoryBreakdown.length > 0 ? (
-            <div className="h-80"> {/* Increased height for better visualization */}
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={130} /* Larger pie chart */
-                    fill="#8884d8"
-                    dataKey="value"
-                    isAnimationActive={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomPieTooltip />} />
-                  <Legend 
-                    formatter={(value, entry, index) => {
-                      return <span style={{ color: COLORS[index % COLORS.length] }}>{value}</span>;
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="p-5 h-96">
+              <D3PieChart
+                data={categoryBreakdown}
+                colorScale={COLORS}
+                darkMode={darkMode}
+              />
             </div>
           ) : (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-96 p-5">
               <p className="text-tertiary">No expense data to display</p>
             </div>
           )}
